@@ -1,5 +1,6 @@
 # EC01 HTML
 
+```
 Contributors: cbos
 Tags: lightweight
 Requires at least: 4.9
@@ -17,6 +18,7 @@ Text Domain: ec01-html
 
 A lightweight alternative to displaying HTML. Can be used as a WordPress theme
 or on its own.
+```
 
 ## Description
 

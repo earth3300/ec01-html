@@ -1,0 +1,89 @@
+# SECURITY BEGIN (Deny First, Then Allow)
+
+Options -Indexes
+# Do not allow the listing of directories by default
+
+#<DirectoryMatch "/e/">
+  # Require all denied
+#</DirectoryMatch>
+# Deny access to all server PHP based files. Causes error when accessing file via browser.
+# Therefore, need to rewrite url to be outside of this directory.
+
+<FilesMatch "xmlrpc.php|config|error|debug|changelog|readme|license">
+  Require all denied
+</FilesMatch>
+# Do not allow access to files that may contain security vulnerabilities or sensitive information.
+
+<FilesMatch "\.(log|htaccess|wpcli)$">
+  # Require all denied
+</FilesMatch>
+
+<FilesMatch "\.(html|css|js|jpg|png|gif|pdf|ico|mp3|mp4|webm)$">
+  Require all granted
+</FilesMatch>
+# Allow access to all html and media files, by default.
+
+# SECURITY END
+
+DirectoryIndex index.php default.html index.html
+# Look for files in this order.
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript image/x-icon
+</IfModule>
+
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|jpg|png|gif|css|js|pdf|ico)$">
+    Header set Cache-Control "max-age=3600, public, must-revalidate"
+    Header unset ETag
+    FileETag None
+  </FilesMatch>
+  AddCharset UTF-8 .html
+</IfModule>
+
+# BEGIN Directory Protection
+# Placement: MUST be before WordPress Directive.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  # RewriteRule ^c/config/(.*) - [L]
+ </IfModule>
+# END Directory Protection
+
+# BEGIN Routing
+# Placement: MUST be before WordPress Directive.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Rewrite non-empty URL /1
+  # RewriteRule ^wp-admin/(.*) e/core/wp-admin/$1 [QSA,L]
+  # Rewrite wp-admin/ to e/core/wp-admin (hide exact directory).
+</IfModule>
+# END Routing
+
+# BEGIN WordPress
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.php$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /1/index.php [L]
+</IfModule>
+
+# END WordPress
+
+# Copied/Pasted to /e/
+# and uncommented RewriteCond %{REQUEST_FILENAME} !-d
+
+ErrorDocument 401 /r/response-code/401.html
+ErrorDocument 403 /r/response-code/403.html
+ErrorDocument 404 /r/response-code/404.html
+ErrorDocument 500 /r/response-code/500.html
+ErrorDocument 503 /r/response-code/503.html
+
+# Use the Source, Luke!
+# https://httpd.apache.org/docs/2.4/
+# Choices minimized for optimization purposes.
+# 86400 seconds = 1 day. 259200 = 3 days. 864000 = 10 days. Adjust as necessary.

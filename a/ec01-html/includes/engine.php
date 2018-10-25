@@ -1,11 +1,11 @@
 <?php
 
-defined( 'SITE' ) || exit;
+defined( 'NDA' ) || exit;
 
 /**
- * The FireFly HTML Engine.
+ * The EC01 HTML Engine.
  */
-class FireFlyHTML
+class EC01HTML
 {
 
 	/**
@@ -17,7 +17,7 @@ class FireFlyHTML
 	{
 		$this->load();
 		$page = $this->getPage();
-		$template = new FireFlyTemplate();
+		$template = new EC01Template();
 		$html = $template->getHtml( $page );
 		return $html;
 	}
@@ -26,7 +26,19 @@ class FireFlyHTML
 	 * Load the required files.
 	 */
 	private function load(){
-		require_once( __DIR__ . '/data.php' );
+		/** This file may contain extra information. */
+		if( file_exists( __DIR__ . '/data.php' ) )
+		{
+			/** Using extra data to help define the site */
+			define('SITE_USE_TIERS', true );
+
+			require_once( __DIR__ . '/data.php' );
+		}
+		else
+		{
+			/** Not using extra data to help define the site. */
+			define('SITE_USE_TIERS', false );
+		}
 		require_once( __DIR__ . '/template.php' );
 	}
 
@@ -37,12 +49,15 @@ class FireFlyHTML
 	private function getPage()
 	{
 		$page = $this->getUri();
-		$page['slug'] = $this-> getPageSlug( $page );
-		$page['header']['main'] = $this-> getHeader( $page );
-		$page['article']= $this-> getArticle( $page );
-		$page['article-title'] = $this-> getArticleTitle( $page['article'] );
-		$page = $this-> getPageData( $page );
-		$page['header']['sub'] = defined( 'SITE_USE_HEADER_SUB' ) && SITE_USE_HEADER_SUB ? $this-> getHeaderTierThree( $page ) : '';
+		$page['slug'] = $this->getPageSlug( $page );
+		$page['article']= $this->getArticle( $page );
+		$page = $this->getPageData( $page ); //needs the article, to get the class.
+		$page['header']['main'] = $this->getHeader( $page );
+		$page['article-title'] = $this->getArticleTitle( $page['article'] );
+		if ( SITE_USE_TIERS )
+		{
+			$page['header']['sub'] = defined( 'SITE_USE_HEADER_SUB' ) && SITE_USE_HEADER_SUB ? $this-> getHeaderTierThree( $page ) : '';
+		}
 		$page['page-title'] = $this-> getPageTitle( $page );
 		$page['sidebar']= defined( 'SITE_USE_SIDEBAR' ) && SITE_USE_SIDEBAR ? $this->getSidebar() : '';
 		$page['footer']= $this-> getFooter();
@@ -88,13 +103,47 @@ class FireFlyHTML
 	}
 
 	/**
-	 * Get the header.
+	 * 	Get the Header (Tiers 1 and 2).
+	 *
+	 * 	Build from constants in the configuration (/c/config/...).
+	 *
+	 * 	@param array $page
+	 *
+	 * 	@return string
+	 */
+	private function getHeader( $page )
+	{
+		$str = '<header class="site-header">' . PHP_EOL;
+		$str .= sprintf( '<a href="/" title="%s">%s', SITE_TITLE, PHP_EOL);
+		$str .= '<div class="inner">' . PHP_EOL;
+		$str .= '<div class="site-logo">' . PHP_EOL;
+		$str .= '<div class="inner">' . PHP_EOL;
+		$str .= '<img src="/0/theme/image/site-logo-75x75.png" alt="Site Logo" width="75" height="75" />' . PHP_EOL;
+		$str .= '</div>' . PHP_EOL;
+		$str .= '</div><!-- .site-logo -->' . PHP_EOL;
+		$str .= '<div class="title-wrap">' . PHP_EOL;
+		$str .= '<div class="inner">' . PHP_EOL;
+		$str .= sprintf( '<div class="site-title">%s</div>%s', SITE_TITLE, PHP_EOL );
+		$str .= sprintf( '<div class="site-description">%s</div>%s', SITE_DESCRIPTION, PHP_EOL );
+		$str .= '</div><!-- .inner -->' . PHP_EOL;
+		$str .= '</div><!-- .title-wrap -->' . PHP_EOL;
+		$str .= '</div><!-- .inner -->' . PHP_EOL;
+		$str .= '</a>' . PHP_EOL;
+		$str .= '</header>' . PHP_EOL;
+
+		return $str;
+	}
+
+	/**
+	 * Get the header file. (Tiers 1 and 2).
+	 *
+	 * Not used by default.
 	 *
 	 * @param array $page
 	 *
-	 * @return str
+	 * @return string
 	 */
-	private function getHeader( $page )
+	private function getHeaderFile( $page )
 	{
 		$str = 'Header N/A';
 
@@ -127,7 +176,8 @@ class FireFlyHTML
 		/** We need Tier 4 Information to construct a unique Tier-3/Tier-4 header. */
 		if ( isset( $page['tiers']['tier-4'] ) &&  $page['tiers']['tier-4'] )
 		{
-			$url = '/' . $page['tiers']['tier-2'] . '/' . $page['tiers']['tier-3'] . SITE_CENTER_DIR . '/';
+			$url_tier3 = '/' . $page['tiers']['tier-2'] . '/' . $page['tiers']['tier-3'];
+			$url_tier4 = $url_tier3  . '/' . $page['tiers']['tier-4'];
 
 			$str = '<header class="site-header-sub">' . PHP_EOL;
 
@@ -138,20 +188,23 @@ class FireFlyHTML
 			$str .= sprintf( '<div class="%s">%s', $page['class']['tier-3'], PHP_EOL );
 			$str .= '<div class="color darker">' . PHP_EOL;
 			$str .= sprintf( '<a class="level-01 %s" ', $page['class']['tier-3'], PHP_EOL );
-			$str .= sprintf( 'href="%s">', $url );
+			$str .= sprintf( 'href="%s/">', $url_tier3 . SITE_CENTER_DIR );
 			$str .= sprintf( '<span class="icon"></span>%s</a>', ucfirst( $page['class']['tier-3'] ) );
 
 			/** Right div. (Tier 4). Absolute Positioning, within Tier 3. */
 			$str .= sprintf( '<div class="level-02 right absolute %s">', $page['class']['tier-4'] );
 			$str .= sprintf( '<div class="color lighter">%s', PHP_EOL );
-			$str .= '<span class="header-height"><span class="icon icon-height"></span>';
-			$str .= sprintf( '%s</span></div>%s', ucfirst( $page['tier-4']['title'] ), PHP_EOL );
+			$str .= '<span class="header-height">';
+			$str .= sprintf( '<a href="%s/">', $url_tier4 );
+			$str .= sprintf( '<span class="icon icon-height"></span>%s</span>', ucfirst( $page['tier-4']['title'] ) );
+			$str .= '</a>' . PHP_EOL;
+			$str .= '</div>' . PHP_EOL;
 			$str .= '</div><!-- .color .lighter -->' . PHP_EOL;
 			$str .= '</div><!-- .tier-4 -->' . PHP_EOL;
 			$str .= '</div><!-- .color .darker -->' . PHP_EOL;
 			$str .= '</div><!-- .tier-3 -->' . PHP_EOL;
+			$str .= SITE_USE_HEADER_SUB ? sprintf('<a href="/%s/" class="%s"><span class="tier-2 level-1 icon"></span></a>', $page['tiers']['tier-2'], $page['class']['tier-2'] ) : '';
 			$str .= '</header>' . PHP_EOL;
-
 
 			return $str;
 		}
@@ -186,8 +239,10 @@ class FireFlyHTML
 	}
 
 	/**
-	 * Get the article directory
+	 * Get the article directory.
+	 *
 	 * @param array $page
+	 * 
 	 * @return string
 	 */
 	private function getArticleDirectory( $page )
@@ -196,9 +251,13 @@ class FireFlyHTML
 		{
 			$file = SITE_PATH . SITE_ARTICLE_FILE;
 		}
-		else
+		elseif ( isset( $page['slug'] ) )
 		{
 			$file = SITE_HTML_PATH . rtrim( $page['slug'], '/' ) . SITE_ARTICLE_FILE;
+		}
+		else
+		{
+			$file = SITE_HTML_PATH . '/default.html';
 		}
 		return $file;
 	}
@@ -233,19 +292,22 @@ class FireFlyHTML
 	 */
 	private function getPageData( $page )
 	{
+		if ( SITE_USE_TIERS )
+		{
+			$page['tiers'] = $this->getUriTiers( $page['uri'] );
+
+			$page['class']['tier-2'] = $this->getUriTierTwo( $page['tiers'] );
+
+			$page['class']['tier-3'] = $this->getUriTierThree( $page['tiers'] );
+
+			$tier4 = $this->getUriTierFour( $page );
+
+			$page['tier-4']['title'] = $tier4['title'];
+
+			$page['class']['tier-4'] = $tier4['class'];
+		}
+
 		$page['class']['dynamic'] = $this->isPageDynamic( $page );
-
-		$page['tiers'] = $this->getUriTiers( $page['uri'] );
-
-		$page['class']['tier-2'] = $this->getUriTierTwo( $page['tiers'] );
-
-		$page['class']['tier-3'] = $this->getUriTierThree( $page['tiers'] );
-
-		$tier4 = $this->getUriTierFour( $page );
-
-		$page['class']['tier-4'] = $tier4['class'];
-
-		$page['tier-4']['title'] = $tier4['title'];
 
 		$page['class']['article'] = $this->getArticleClass( $page['article'] );
 
@@ -407,11 +469,47 @@ class FireFlyHTML
 	}
 
 	/**
+	 *
+	 */
+	private function getFooter()
+	{
+		$str = '<footer class="nav">' . PHP_EOL;
+		$str .= '<nav class="align-center">' . PHP_EOL;
+		$str .= '<a href="../../../../" class="icon-up-4" title="Up 4 Directories">^4</a>&nbsp;&nbsp;' . PHP_EOL;
+		$str .= '<a href="../../../" class="icon-up-3" title="Up 3 Directories">^3</a>&nbsp;&nbsp;' . PHP_EOL;
+		$str .= '<a href="../../" class="icon-up-2" title="Up 2 Directories">^2</a>&nbsp;&nbsp;' . PHP_EOL;
+		$str .= '<a href="../" class="icon-up-1" title="Up 1 Directory">^1</a>' . PHP_EOL;
+		$str .= '</nav>' . PHP_EOL;
+		$str .= '</footer>' . PHP_EOL;
+		$str .= '<footer class="site-footer">' . PHP_EOL;
+		$str .= '<div class="inner">' . PHP_EOL;
+		/** SITE_YEAR_TO_NOW is empty string if same as SITE_YEAR_START, else '&ndash' . date('Y'); */
+		if ( SITE_USE_BASIC )
+		{
+			$str .= sprintf( '<span class="copyright">Copyright &copy; %s %s</span>', date('Y'), SITE_TITLE );
+		}
+		else
+		{
+			$str .= sprintf( '<span class="copyright">Copyright &copy; %s%s %s</span>', SITE_YEAR_START, SITE_YEAR_TO_NOW, SITE_TITLE );
+		}
+		$str .= '<nav class="hide">' . PHP_EOL;
+		$str .= '<ul class="horizontal-menu">' . PHP_EOL;
+		$str .= '<li><a href="/page/privacy/">Privacy</a></li>' . PHP_EOL;
+		$str .= '<li><a href="/page/terms/">Terms</a></li>' . PHP_EOL;
+		$str .= '</ul>' . PHP_EOL;
+		$str .= '</nav>' . PHP_EOL;
+		$str .= '</div>' . PHP_EOL;
+		$str .= '</footer>' . PHP_EOL;
+
+		return $str;
+	}
+
+	/**
 	 * Get the footer
 	 *
 	 * @return string
 	 */
-	private function getFooter()
+	private function getFooterFile()
 	{
 		$str = 'Footer N/A';
 		$file = SITE_FOOTER_PATH . SITE_FOOTER_DIR . SITE_HTML_EXT;

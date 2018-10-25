@@ -1,5 +1,6 @@
 # EC01 HTML
 
+```
 Contributors: cbos
 Tags: lightweight
 Requires at least: 4.9
@@ -17,6 +18,7 @@ Text Domain: ec01-html
 
 A lightweight alternative to displaying HTML. Can be used as a WordPress theme
 or on its own.
+```
 
 ## Description
 
@@ -53,7 +55,7 @@ may be better. At the time of this writing, the author can only recommend Concre
 a strong option.
 
 Regardless, the intent of this simple framework has been to move in the direction of a
-platform agnosticism. As _all_ web frameworks MUST deliver content in HTML format,
+platform agnostism. As _all_ web frameworks MUST deliver content in HTML format,
 it doesn't really matter which framework one uses, but it DOES matter how the clean is the
 HTML that is delivered and if it validates without errors. Any WordPress theme and set of
 plugins can do this, but it depends on how they are coded. In addition, wp_head() adds a

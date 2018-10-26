@@ -63,7 +63,7 @@ document are to be interpreted as described in RFC 2119.
 4. Upload the two REQUIRED files, which are `.htaccess` and `index.php`.
 5. Uploading the license and readme files are OPTIONAL.
 6. Create content in the `/1` directory.
-7. The `/1` directory SHOULD NOT contain any `.php` files.
+7. The `/1` directory MUST NOT contain any `.php` files.
 8. The `/1` directory MUST contain only html files.
 9. The `/1` directory MUST NOT contain any images, video, audio, css or javascript files.
 10. Any images, video, audio, css or javascript files MUST be in the `/0` directory.

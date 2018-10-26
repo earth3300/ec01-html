@@ -1,23 +1,16 @@
 # EC01 HTML
 
 ```
-Contributors: cbos
-Tags: lightweight
-Requires at least: 4.9
-Tested up to: 4.9.6
-Stable tag: 4.9
-Requires PHP: 5.2.4
-License: GPL-3.0+
-License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
-
-Theme URI: http://wp.cbos.ca/themes/ec01-html/
+Theme Name: EC01 HTML
+Theme URI: https://github.com/earth3300/ec01-html
+Author: earth3300
+Author URI: https://github.com/earth3300/
+Description: A simple, lightweight framework that displays articles saved as HTML text files.
 Version: 2018.10.25
-Author: Clarence Bos
-Author URI: http://www.tnoep.ca/
+License: GPL v3.0
+License URI: http://www.gnu.org/licenses/gpl-3.0.html
 Text Domain: ec01-html
-
-A lightweight alternative to displaying HTML. Can be used as a WordPress theme
-or on its own.
+Tags: one-column, sidebar, static, dynamic
 ```
 
 ## Description
@@ -52,18 +45,44 @@ in the same folder. In this way, the article will be cached in the appropriate s
 even if the site breaks, the article will still be there (saved as valid HTML), and can be viewed;
 even if WordPress is no longer present. This, to the author, represents a leap in freedom.
 
-1. Upload the theme files to the `/{wp-content}/themes/ec01-html` directory.
-2. Activate the theme through the 'Themes' screen in WordPress.
-
 ## Terminology
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
 "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
 document are to be interpreted as described in RFC 2119.
 
-## Frequently Asked Questions
+## Installation
 
-1. How does it work?
+### As a Standalone or Backup Minimal Framework
+
+1. Navigate to the root directory of the site in which this framework is to be installed.
+2. Navigate to the downloaded folder on the local computer and enter it.
+3. Upload each directory in turn, which should be, `/0`, `/1` and `/a`.
+4. Upload the two REQUIRED files, which are `.htaccess` and `index.php`.
+5. Uploading the license and readme files are OPTIONAL.
+6. Create content in the `/1` directory.
+7. The `/1` directory SHOULD NOT contain any `.php` files.
+8. The `/1` directory MUST contain only html files.
+9. The `/1` directory MUST NOT contain any images, video, audio, css or javascript files.
+10. Any images, video, audio, css or javascript files MUST be in the `/0` directory.
+11. The names of these root directories (`/0`, `/1` and `a`) MAY be changed.
+12. It is RECOMMENDED to keep the names of top level directories to one character only.
+13. It is RECOMMENDED to keep integers (i.e. `/0` and `/1` for static files only.
+14. It is RECOMMENDED to keep alphabetical characters (i.e. `/a`) for directories containing `.php` files.
+15. Keeping static HTML files separate from media, css and javascript files separate from `.php` files makes it much easier to (a) prepare the site for a Content Delivery Network (CDN), (b) secure the site from attacks, and (c) make the site faster and more robust by insisting that the HTML and cached files are in a directory structure that matches the URL structure _exactly_.
+
+### As a WordPress Theme
+
+1. Upload the theme files to the `/{wp-content}/themes/ec01-html` directory.
+2. Activate the theme through the 'Themes' screen in WordPress.
+3. Proceed as normal.
+4. TODO: The EC01 HTML theme system works by looking for files called `article.html` in a directory structure that matches the URL structure. In order for this to work, WordPress MUST save pages or posts in a directory (under the top level root directory called `/1`) that match the URL exactly. It does not do this by default.
+
+At the time of this writing a simple plugin has been written that DOES do this, however it behaves incorrectly when a page or post is deleted. It is hoped that this will be fixed in the near future. In the meantime, EC01 HTML _can_ be used as a theme, _provided_ that the files it is looking for (`article.html`) is in a directory that matches the URL structure. i.e. the URL `/my/awesome/idea/` maps to `my/awesome/idea/article.html' in the file structure (i.e. on your host and on your local computer.
+
+In other words, by starting on your local computer, it is entirely possible to write the articles for your entire website, using only a simple text editor (such as Notepad++). It is hoped that this simplicity and robustness will offset the minor amount of technical knowledge to make it work, until such time as WordPress can be made aware of this approach.
+
+## How Does it Work?
 
 This theme uses a class that generates the HTML. It uses as set of generic
 configuration files constants, that all begin with the prefix SITE_.

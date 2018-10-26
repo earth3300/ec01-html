@@ -39,7 +39,7 @@ then install the framework found here, to display that article in valid HTML. Th
 from having to go the other way around and install an entirely new WordPress site, just to
 get "your awesome idea" out there.
 
-In addition, it is possible for WordPress to take that article saved using a text editory
+In addition, it is possible for WordPress to take that article saved using a text editor
 and then import it into the database. Process it and then export the entire page to `index.html`
 in the same folder. In this way, the article will be cached in the appropriate spot. That means,
 even if the site breaks, the article will still be there (saved as valid HTML), and can be viewed;

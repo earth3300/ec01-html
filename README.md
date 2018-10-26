@@ -45,7 +45,7 @@ in the same folder. In this way, the article will be cached in the appropriate s
 even if the site breaks, the article will still be there (saved as valid HTML), and can be viewed;
  even if WordPress is no longer present. This, to the author, represents a leap in freedom.
 
-The second way it can be used is as a theme of WordPress, which is then saved in the `themes` folder, as any other theme. However, due to the requirement that this set of files be as simple as possible, it does not contain any of the advanced features, such as comments, multiple sidebars, etc. It is meant to be simple so that there is a higher degree of probability that it will always work. When additional components are added, the chance increases that the system will break somewhere along the line. This theme is intended simply to be used to display an article and little else. There is a provision for a sidebar, but nothing else. It does, though, contain a header and footer.
+The second way it can be used is as a theme of WordPress, which is then saved in the `/themes` folder, as any other theme. However, due to the requirement that this set of files be as simple as possible, it does not contain any of the advanced features, such as comments, multiple sidebars, etc. It is meant to be simple so that there is a higher degree of probability that it will always work. When additional components are added, the chance increases that the system will break somewhere along the line. This theme is intended simply to be used to display an article and little else. There is a provision for a sidebar, but nothing else. It does, though, contain a header and footer.
 
 ## Terminology
 

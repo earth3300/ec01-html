@@ -39,9 +39,9 @@ up and running more quickly.
 
 As it is built to work with WordPress, the goal is to have WordPress save posts in the same
 way that this minimalist framework does, asn an `article.html` file in a directory that matches
-the url given exactly. In this way, a viewer looking at `my/awesome/idea/', will be accessing
-that file in a directory found at `my/awesome/idea/`. In other words, it is possible to start
-typing an article at `my/awesome/idea/` in a documents folder, save it as `article.html` and
+the url given exactly. In this way, a viewer looking at `/my/awesome/idea/`, will be accessing
+that file in a directory found at `/my/awesome/idea/`. In other words, it is possible to start
+typing an article at `/my/awesome/idea/` in a documents folder, save it as `article.html` and
 then install the framework found here, to display that article in valid HTML. This is a far cry
 from having to go the other way around and install an entirely new WordPress site, just to
 get "your awesome idea" out there.
@@ -51,6 +51,9 @@ and then import it into the database. Process it and then export the entire page
 in the same folder. In this way, the article will be cached in the appropriate spot. That means,
 even if the site breaks, the article will still be there (saved as valid HTML), and can be viewed
 --even if WordPress is no longer present. This, to the author, represents a leap in freedom.
+
+1. Upload the theme files to the `/{wp-content}/themes/ec01-html` directory.
+2. Activate the theme through the 'Themes' screen in WordPress.
 
 ## Terminology
 

@@ -22,8 +22,35 @@ or on its own.
 
 ## Description
 
-1. Upload the theme files to the `/{wp-content}/themes/ec01-html` directory.
-2. Activate the theme through the 'Themes' screen in WordPress.
+This theme can be used in one of two ways. First, it was developed and intended to
+be used on its own as a minimal backup framework to WordPress. In its simplest format
+it needs only three files, an `index.php`, and `engine.php` file and a `template.php`
+file. It is kept to a bare minimum because that is really all that is needed to display
+valid HTML on the web. There are many other more complex frameworks available. This isn't
+one of them.
+
+This framework can be used when developing a new idea. Often--in the beginning stages--
+there is very little information, but a need to get that information out there as quickly
+as possible. Rather than struggling with a framework that now exceeds 20 MB in size and
+is going through constant updates, this framework requires only 23 kB for the PHP files and
+19.5 kB for both parent and child stylesheets. Thus, for less than 50 kB of code (400 times
+less than WordPress) a simple, robust and fast framework can be used to be able to get
+up and running more quickly.
+
+As it is built to work with WordPress, the goal is to have WordPress save posts in the same
+way that this minimalist framework does, asn an `article.html` file in a directory that matches
+the url given exactly. In this way, a viewer looking at `my/awesome/idea/', will be accessing
+that file in a directory found at `my/awesome/idea/`. In other words, it is possible to start
+typing an article at `my/awesome/idea/` in a documents folder, save it as `article.html` and
+then install the framework found here, to display that article in valid HTML. This is a far cry
+from having to go the other way around and install an entirely new WordPress site, just to
+get "your awesome idea" out there.
+
+In addition, it is possible for WordPress to take that article saved using a text editory
+and then import it into the database. Process it and then export the entire page to `index.html`
+in the same folder. In this way, the article will be cached in the appropriate spot. That means,
+even if the site breaks, the article will still be there (saved as valid HTML), and can be viewed
+--even if WordPress is no longer present. This, to the author, represents a leap in freedom.
 
 ## Terminology
 

@@ -49,8 +49,8 @@ get "your awesome idea" out there.
 In addition, it is possible for WordPress to take that article saved using a text editory
 and then import it into the database. Process it and then export the entire page to `index.html`
 in the same folder. In this way, the article will be cached in the appropriate spot. That means,
-even if the site breaks, the article will still be there (saved as valid HTML), and can be viewed
---even if WordPress is no longer present. This, to the author, represents a leap in freedom.
+even if the site breaks, the article will still be there (saved as valid HTML), and can be viewed;
+even if WordPress is no longer present. This, to the author, represents a leap in freedom.
 
 1. Upload the theme files to the `/{wp-content}/themes/ec01-html` directory.
 2. Activate the theme through the 'Themes' screen in WordPress.

@@ -40,7 +40,7 @@ from having to go the other way around and install an entirely new WordPress sit
 get "your awesome idea" out there.
 
 In addition, it is possible for WordPress to take that article saved using a text editor
-and then import it into the database. Process it and then export the entire page to `index.html`
+and then import it into the database, process it and then export the entire page to `index.html`
 in the same folder. In this way, the article will be cached in the appropriate spot. That means,
 even if the site breaks, the article will still be there (saved as valid HTML), and can be viewed;
  even if WordPress is no longer present. This, to the author, represents a leap in freedom.

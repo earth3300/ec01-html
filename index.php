@@ -1,66 +1,105 @@
 <?php
 
-/** Set a constant for security. Use it to ensure files are not accessed directly. */
-define( 'NDA', true );
-
-/** Set a timer to measure performance. */
-global $site_elapsed;
-
-/** Store the starting time to four decimal places in seconds (float) */
-$site_elapsed['start'] = microtime( true );
-
-/** Record the path we are in, for later. */
-define( 'SITE_PATH', __DIR__ );
-
-/** Record which directory we are in, for later. */
-define( 'SITE_DIR', '/' . basename(__DIR__) );
+namespace Earth3300\EC01;
 
 /**
- * The first path is hard coded here. It sets up the directory structure of the
- * site and assigns it to constants so that it can these can be used site wide.
- * and by the different frameworks, that will then inherit these values.
+ * EC01 HTML.
+ *
+ * A lighweight alternative to displaying HTML. Can be used on its own, or as a WordPress theme.
+ * A basic set of constants are in this index file.
+ *
+ * @package EC01HTML
+ * @since 2018.10.29
+ * @author Clarence J. Bos <cbos@tnoep.ca>
+ * @copyright Copyright (c) 2018, Clarence J. Bos
+ * @license https://www.gnu.org/licenses/gpl-3.0.en.html GPL-3.0+
+ * @link https://github.com/earth3300/ec01-html
+ *
+ * @wordpress-theme
+ * Theme Name: EC01 HTML
+ * Theme URI: https://github.com/earth3300/ec01-html
+ * Description: A lightweight alternative to displaying HTML. Can be used on its own or as a WordPress theme.
+ * Version: 2018.10.29
+ * Author: Clarence J. Bos
+ * Author URI: https://github.com/earth3300
+ * Text Domain: ec01-html
+ * License: GPL-3.0+
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
  */
-if ( file_exists( __DIR__ . '/c/config/cfg-load.php' ) )
+
+/**
+ * If `wp_get_server_protocol` exists, we are in WordPress, otherwise not.
+ */
+if( function_exists( 'wp_get_server_protocol' ) )
 {
-	require_once( __DIR__ . '/c/config/cfg-load.php' );
+	/** We are in WordPress, and check for direct access. */
+	defined('ABSPATH') || exit('No direct access.');
+}
+else
+{
+	/** We are not in WordPress, and check for direct access. */
+	defined('NDA') || exit('No direct access.');
 }
 
-/** Use this directory as the domain name if it is not commented out. Set in /c/config/ otherwise. */
-//define( 'SITE_DOMAIN_NAME', basename(__DIR__) );
+if ( ! defined( 'SITE_PATH' ) && defined('ABSPATH') )
+{
+	/** Set SITE_PATH to ABSPATH, if in WordPress. */
+	define( 'SITE_PATH', ABSPATH );
+}
+elseif ( ! defined( 'SITE_PATH' ) )
+{
+	/** Last ditch effort. The site path is two levels up. */
+	define( 'SITE_PATH', __DIR__ . '/../../' );
+}
+elseif( defined( 'SITE_PATH' ) )
+{
+	/**
+	 * It should be entirely possible to run this thing without a humungous config file.
+	 * That means if it isn't there, this should still load but set a basic set of constants.
+	 * Lets see what they are.
+	 */
 
-/** Use the core if we have decided to. If we have decided to for a request and if it is there. */
+	/** The following is conditional. If these conditions are not met, it won't work. */
+	if ( file_exists( SITE_PATH . '/c/config/cfg-load.php' ) )
+	{
+		/** Load the complete config file set, and use it. */
+		define( 'SITE_USE_BASIC', false );
 
-/** [ true && ( true: ALWAYS ) ][ ( true && ( false||* ): SOMETIMES ][ false && (*): NEVER ) ] */
-if ( defined('SITE_USE_CORE') && SITE_USE_CORE && ( SITE_USE_CORE_ALWAYS
-		|| ( ! empty( $_GET ) || $_SERVER['REQUEST_METHOD'] === 'POST' )
-		&& file_exists( SITE_CORE_PATH . '/index.php' ) ) )
-{
-	require_once( SITE_CORE_PATH . '/index.php' );
-}
-/** If the core is not used, use an alternative (simpler) framework, if it is available. */
-else if ( defined('SITE_USE_MINIMAL') && SITE_USE_MINIMAL
-		 && file_exists( SITE_MINIMAL_PATH . '/index.php' ) )
-{
-	require_once( SITE_MINIMAL_PATH . '/index.php' );
-}
-else if ( file_exists( __DIR__ . '/a/ec01-html/index.php' ) )
-{
-	/** Look for it where we expect it. */
-	require_once( __DIR__ . '/a/ec01-html/index.php' );
-}
+		/** Require the configuration files. */
+		require_once( SITE_PATH . '/c/config/cfg-load.php' );
+	}
+	else
+	{
+		/** Lets set some basic config here. */
+		define( 'SITE_TITLE', 'Site Title' );
+		define( 'SITE_DESCRIPTION', 'Site Description' );
+		define( 'SITE_USE_BASIC', true );
+		define( 'SITE_LANG', 'en' );
+		define( 'SITE_CHARSET', 'UTF-8' );
+		define( 'SITE_ELAPSED_TIME', false );
+		define( 'SITE_IS_FIXED_WIDTH', false );
+		define( 'SITE_USE_CSS_CHILD', false );
+		define( 'SITE_HTML_EXT', '.html' );
+		define( 'SITE_ARTICLE_FILE', '/article.html' );
+		define( 'SITE_DEFAULT_FILE', '/default.html' );
+		define( 'SITE_HTML_PATH', SITE_PATH . '/1' );
+	}
 
-/** Otherwise, look for index.html file and serve that. */
-else if ( file_exists( __DIR__ . "/index.html" ) )
-{
-	echo file_get_contents( __DIR__ . '/index.html' );
+	/** Require the "engine" file. This is expected to be there. */
+	require_once( __DIR__ . '/includes/engine.php' );
+
+	/**
+	 * Instantiate the EC01HTML class and echo it.
+	 *
+	 * The class does all the rest of the work.
+	 * It does not use a database. If we got this far, the class exists
+	 * in the engine directory, otherwise it is *really* broken.
+	 */
+	$html = new EC01HTML();
+	echo $html->get();
 }
-/** Otherwise, look default.html file and serve that. */
-else if ( file_exists( __DIR__ . "/default.html" ) )
+else
 {
-	echo file_get_contents( __DIR__ . '/default.html' );
-}
-/** If not, bail and ask for help. */
-else {
-	echo "<div style='font:16px/1.6 sans-serif;text-align:center;'><br>";
-	echo "Nothing here.</div>" . PHP_EOL;
+	/** Bail, and ask for help. */
+	exit( 'The SITE_PATH needs to be set to the root directory of this site.' );
 }

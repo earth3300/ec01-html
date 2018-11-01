@@ -618,7 +618,9 @@ class EC01HTML
 	}
 
 	/**
+	 * Get the Footer
 	 *
+	 * @return string
 	 */
 	private function getFooter()
 	{

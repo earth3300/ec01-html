@@ -1,5 +1,7 @@
 <?php
 
+namespace Earth3300\EC01;
+
 defined( 'NDA' ) || exit;
 
 /**
@@ -299,9 +301,10 @@ class EC01HTML
 	private function getArticleFile( $page )
 	{
 		$str = '<article>Article N/A.</article>';
+
 		$file = $page['file']['name'];
 
-		if ( strlen ( $file ) < 120 )
+		if ( ! empty( $file ) && strlen ( $file ) < 120 )
 		{
 			$str = file_get_contents( $file );
 			return $str;
@@ -326,6 +329,7 @@ class EC01HTML
 	{
 		$str = "This page doesn't exist.";
 		$file = $page['file']['name'];
+		echo strlen ( $file );
 		if ( strlen ( $file ) < 120 )
 		{
 			$str = file_get_contents( $file );
@@ -670,7 +674,7 @@ class EC01HTML
 	}
 
 	/**
-	 * Firefly sanitize HTML
+	 * Sanitize HTML
 	 *
 	 * Not currently used (2018.09.0)
 	 * Remove everything but valid HTML

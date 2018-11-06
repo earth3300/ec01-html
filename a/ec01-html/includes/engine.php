@@ -1,8 +1,19 @@
 <?php
+/**
+ * EC01 Engine (Earth3300\EC01)
+ *
+ * This file constructs the page.
+ *
+ * File: engine.php
+ * Created: 2018-10-01
+ * Update: 2018-11-06
+ * Time: 16:19 EST
+ */
 
 namespace Earth3300\EC01;
 
-defined( 'NDA' ) || exit;
+/** No direct access (NDA). */
+defined('NDA') || exit('NDA');
 
 /**
  * The EC01 HTML Engine.
@@ -12,7 +23,6 @@ defined( 'NDA' ) || exit;
  */
 class EC01HTML
 {
-
 	/**
 	 * Get the HTML Page.
 	 *
@@ -28,22 +38,18 @@ class EC01HTML
 	}
 
 	/**
-	 * Load the required files.
+	 * Load the Required Files.
 	 *
 	 * The `data.php` file is optional. It is being developed to allow
 	 * more complex page headers to be constructed. In its most basic form
 	 * only one header type is constructed. When this is the case, no extra
-	 * data is needed. However, the `template.php` is required. It is not
-	 * optional.
+	 * data is needed. The `template.php` file is required. It is not optional.
 	 */
-	private function load(){
-
+	private function load()
+	{
 		/** Contains optional information. */
-		if( file_exists( __DIR__ . '/data.php' ) )
+		if ( file_exists( __DIR__ . '/data.php' ) )
 		{
-			/** Don't use the basic version. */
-			define('SITE_USE_BASIC', false );
-
 			/** Using optional data to help define the site */
 			require_once( __DIR__ . '/data.php' );
 
@@ -52,18 +58,27 @@ class EC01HTML
 
 			if ( SITE_USE_TIERS )
 			{
-				/** Works together with the data file. */
-				require_once( __DIR__ . '/tier.php' );
+				if ( file_exists( __DIR__ . '/tiers.php' ) )
+				{
+					/** Site has tiers. Let it know that. */
+					define('SITE_HAS_TIERS', true );
+
+					/** Works together with the data file. */
+					require_once( __DIR__ . '/tiers.php' );
+				}
+				else {
+					/** Site does not have tiers. Let it know that. */
+					define('SITE_HAS_TIERS', false );
+					echo "The file <code>tiers.php</code> is not available.";
+				}
 			}
 		}
 		else
 		{
-			/** Use the basic version */
-			define('SITE_USE_BASIC', true );
-
 			/** Don't use tiers. */
 			define('SITE_USE_TIERS', false );
 		}
+		/** This template file is required. */
 		require_once( __DIR__ . '/template.php' );
 	}
 
@@ -91,23 +106,21 @@ class EC01HTML
 		if( $page['file']['page'] )
 		{
 			$page['page'] = $this->getPageFile( $page );
-			$page['article'] = false;
+			$page['article'] = 'Not available.';
 		}
 		else
 		{
 			$page['page']= false;
 			$page['article'] = $this->getArticleFile( $page );
 		}
-		$page = $this->getPageData( $page ); //needs the article, to get the class.
+		$page['tiers'] = $this->getPageData( $page ); //needs the article, to get the class.
+		$page['class'] = $this->getPageClasses( $page );
 		$page['header']['main'] = $this->getHeader( $page );
 		$page['article-title'] = $this->getArticleTitle( $page['article'] );
-		if ( SITE_USE_TIERS )
-		{
-			$page['header']['sub'] = defined( 'SITE_USE_HEADER_SUB' ) && SITE_USE_HEADER_SUB ? $this-> getHeaderTierThree( $page ) : '';
-		}
 		$page['page-title'] = $this-> getPageTitle( $page );
 		$page['sidebar']= defined( 'SITE_USE_SIDEBAR' ) && SITE_USE_SIDEBAR ? $this->getSidebar() : '';
 		$page['footer']= $this-> getFooter();
+
 		return $page;
 	}
 
@@ -140,7 +153,7 @@ class EC01HTML
 	/**
 	 * Get the page slug.
 	 *
-	 * The page slug is the uri, with the following slash removed.
+	 * The page slug is the URI, with the following slash removed.
 	 *
 	 * @param array $page
 	 *
@@ -177,9 +190,9 @@ class EC01HTML
 	}
 
 	/**
-	 * 	Get the Header (Tiers 1 and 2).
+	 * 	Get the Header.
 	 *
-	 * 	Build from constants in the configuration (/c/config/...).
+	 * 	The SITE_TITLE and SITE_DESCRIPTION constants are used here.
 	 *
 	 * 	@param array $page
 	 *
@@ -188,158 +201,59 @@ class EC01HTML
 	private function getHeader( $page )
 	{
 		$str = '<header class="site-header">' . PHP_EOL;
+		$str .= '<div class="inner">' . PHP_EOL;
+
+		/** The front page link needs to wrap around the logo and title, but nothing else. */
 		$str .= sprintf( '<a href="/" title="%s">%s', SITE_TITLE, PHP_EOL);
-		$str .= '<div class="inner">' . PHP_EOL;
-		$str .= '<div class="site-logo">' . PHP_EOL;
-		$str .= '<div class="inner">' . PHP_EOL;
-		$str .= '<img src="/0/theme/image/site-logo-75x75.png" alt="Site Logo" width="75" height="75" />' . PHP_EOL;
-		$str .= '</div>' . PHP_EOL;
-		$str .= '</div><!-- .site-logo -->' . PHP_EOL;
-		$str .= '<div class="title-wrap">' . PHP_EOL;
-		$str .= '<div class="inner">' . PHP_EOL;
-		$str .= sprintf( '<div class="site-title">%s</div>%s', SITE_TITLE, PHP_EOL );
-		$str .= sprintf( '<div class="site-description">%s</div>%s', SITE_DESCRIPTION, PHP_EOL );
+
+			$str .= '<div class="site-logo">' . PHP_EOL;
+			$str .= '<div class="inner">' . PHP_EOL;
+			$str .= '<img src="/0/theme/image/site-logo-75x75.png" alt="Site Logo" width="75" height="75" />' . PHP_EOL;
+			$str .= '</div><!-- .inner -->' . PHP_EOL;
+			$str .= '</div><!-- .site-logo -->' . PHP_EOL;
+
+			/** The title wrap includes the title and description, but nothing else. */
+			$str .= '<div class="title-wrap">' . PHP_EOL;
+			$str .= '<div class="inner">' . PHP_EOL;
+			$str .= sprintf( '<div class="site-title">%s</div>%s', SITE_TITLE, PHP_EOL );
+			$str .= sprintf( '<div class="site-description">%s</div>%s', SITE_DESCRIPTION, PHP_EOL );
+			$str .= '</div><!-- .inner -->' . PHP_EOL;
+			$str .= '</div><!-- .title-wrap -->' . PHP_EOL;
+
+		$str .= '</a><!-- .front-page-link -->' . PHP_EOL;
+
+		/** The sub header needs to be self closing. */
+		$str .= SITE_USE_HEADER_SUB ? $this->getHeaderSub( $page ) : '';
+
+		/** Close the inner wrap and the header itself. */
 		$str .= '</div><!-- .inner -->' . PHP_EOL;
-		$str .= '</div><!-- .title-wrap -->' . PHP_EOL;
-		$str .= '</div><!-- .inner -->' . PHP_EOL;
-		$str .= '</a>' . PHP_EOL;
 		$str .= '</header>' . PHP_EOL;
 
 		return $str;
 	}
 
 	/**
-	 * Get the header file. (Tiers 1 and 2).
-	 *
-	 * Not used by default.
-	 *
-	 * @param array $page
-	 *
-	 * @return string
-	 */
-	private function getHeaderFile( $page )
-	{
-		$str = 'Header N/A';
-
-		$file = SITE_HEADER_PATH . SITE_HEADER_DIR . SITE_HTML_EXT;
-
-		if ( file_exists( $file ) )
-		{
-			$str = file_get_contents( $file );
-			return $str;
-		}
-		else
-		{
-			return $str;
-		}
-	}
-
-	/**
-	 * Builds the Tier 3 Header.
-	 *
-	 * Needs to differentiate between the "Where" (name) and the "Who".
-	 * We have $page['tiers'], which contains the Tier-2 short form (i.e.
-	 * who, wha, how, whe, whn, and why.
+   * Get the Sub Header.
+   *
+   * This is being used here to construct a rather complex three (or four) part
+   * header. This is so that it can be used to provide better visual cues
+   * as to where one is on the site. Color, blocking and icons are all used for
+   * maximum effect. If necessary, this can be replaced as needed. Note where the
+   * sub header is being placed with respect to the containing header and style
+   * accordingly. Since this is using the tiers concept, we can do another check
+   * for the file and then call it only if there. Checking if the class file_exist
+   * may not work.
 	 *
 	 * @param array $page
-	 *
-	 * @return array
+   *
+	 * @return string|bool
 	 */
-	private function getHeaderTierThree( $page )
-	{
-		/** We need Tier 4 Information to construct a unique Tier-3/Tier-4 header. */
-		if ( isset( $page['tiers']['tier-4'] ) &&  $page['tiers']['tier-4'] )
-		{
-			$url_tier3 = '/' . $page['tiers']['tier-2'] . '/' . $page['tiers']['tier-3'];
-			$url_tier4 = $url_tier3  . '/' . $page['tiers']['tier-4'];
-
-			$str = '<header class="site-header-sub">' . PHP_EOL;
-
-			/** The less specific overlays the more specific to get the effect we want. */
-			$str .= sprintf( '<div>%s', PHP_EOL );
-
-			/** Left div. (Tier 3). */
-			$str .= sprintf( '<div class="%s">%s', $page['class']['tier-3'], PHP_EOL );
-			$str .= '<div class="color darker">' . PHP_EOL;
-			$str .= sprintf( '<a class="level-01 %s" ', $page['class']['tier-3'], PHP_EOL );
-			$str .= sprintf( 'href="%s/">', $url_tier3 . SITE_CENTER_DIR );
-			$str .= sprintf( '<span class="icon"></span>%s</a>', ucfirst( $page['class']['tier-3'] ) );
-
-			/** Right div. (Tier 4). Absolute Positioning, within Tier 3. */
-			$str .= sprintf( '<div class="level-02 right absolute %s">', $page['class']['tier-4'] );
-			$str .= sprintf( '<div class="color lighter">%s', PHP_EOL );
-			$str .= '<span class="header-height">';
-			$str .= sprintf( '<a href="%s/">', $url_tier4 );
-			$str .= sprintf( '<span class="icon icon-height"></span>%s</span>', ucfirst( $page['tier-4']['title'] ) );
-			$str .= '</a>' . PHP_EOL;
-			$str .= '</div>' . PHP_EOL;
-			$str .= '</div><!-- .color .lighter -->' . PHP_EOL;
-			$str .= '</div><!-- .tier-4 -->' . PHP_EOL;
-			$str .= '</div><!-- .color .darker -->' . PHP_EOL;
-			$str .= '</div><!-- .tier-3 -->' . PHP_EOL;
-			$str .= SITE_USE_HEADER_SUB ? sprintf('<a href="/%s/" class="%s"><span class="tier-2 level-1 icon"></span></a>', $page['tiers']['tier-2'], $page['class']['tier-2'] ) : '';
-			$str .= '</header>' . PHP_EOL;
-
-			return $str;
-		}
-		else
-		{
-			return false;
-		}
-	}
-
-	/**
-	 * Get the article.
-	 *
-	 * Do a basic check on the file length, to make sure nothing
-	 * squirrely is happening here.
-	 *
-	 * @param array $page
-	 *
-	 * @return string
-	 */
-	private function getArticleFile( $page )
-	{
-		$str = '<article>Article N/A.</article>';
-
-		$file = $page['file']['name'];
-
-		if ( ! empty( $file ) && strlen ( $file ) < 120 )
-		{
-			$str = file_get_contents( $file );
-			return $str;
-		}
-		else
-		{
-			return $str;
-		}
-	}
-
-	/**
-	 * Get the page.
-	 *
-	 * The page exists. We are just being nice and delivering it as is. A basic
-	 * check on the file length is done. Otherwise, nothing much here.
-	 *
-	 * @param array $page
-	 *
-	 * @return string
-	 */
-	private function getPageFile( $page )
-	{
-		$str = "This page doesn't exist.";
-		$file = $page['file']['name'];
-		echo strlen ( $file );
-		if ( strlen ( $file ) < 120 )
-		{
-			$str = file_get_contents( $file );
-			return $str;
-		}
-		else
-		{
-			return $str;
-		}
-	}
+	 private function getHeaderSub( $page )
+	 {
+		 	 $tiers = new EC01Tiers();
+			 $str = $tiers->getHeaderSubTiered( $page );
+			 return $str;
+	 }
 
 	/**
 	 * Get the Verfied Article Path and File Name.
@@ -406,7 +320,7 @@ class EC01HTML
 	}
 
 	/**
-	 * Get the article title.
+	 * Get the Article Title.
 	 *
 	 * @param array $page
 	 *
@@ -434,63 +348,81 @@ class EC01HTML
 	 * version as the first section of this function isn't used if the files
 	 * (tier.php and data.php) are not available.
 	 *
-	 * @param array
+	 * @param array $page
 	 *
-	 * @return string
+	 * @return array
 	 */
 	private function getPageData( $page )
 	{
 		if ( SITE_USE_TIERS )
 		{
 			$tiers = new EC01Tiers();
-			$page['tiers'] = $tiers->getUriTiers( $page['uri'] );
 
-			$page['class']['tier-2'] = $tiers->getUriTierTwo( $page['tiers'] );
-
-			$page['class']['tier-3'] = $tiers->getUriTierThree( $page['tiers'] );
-
-			$tier4 = $tiers->getUriTierFour( $page );
-
-			$page['tier-4']['title'] = $tier4['title'];
-
-			$page['class']['tier-4'] = $tier4['class'];
+			/** Get the tiers data ('tiers') */
+			$data = $tiers->getTiersData( $page );
+			return $data;
 		}
-
-		$page['class']['dynamic'] = $this->isPageDynamic( $page );
-
-		$page['class']['article'] = $this->getArticleClass( $page['article'] );
-
-		$page['class']['html'] = $this->getHtmlClassStr( $page['class'] );
-
-		return $page;
+		else
+		{
+			return false;
+		}
 	}
+
+	/**
+	 * Get the HTML Class.
+	 *
+	 */
+	 private function getPageClasses( $page )
+	 {
+		$class['type'] = $this->isPageDynamic( $page );
+
+ 		$class['article'] = $this->getArticleClass( $page['article'] );
+
+ 		$class['html'] = $this->getHtmlClass( $class['type'], $page['tiers'] );
+
+		$class['body'] = $this->getBodyClass( $page['tiers'] );
+
+		return $class;
+	 }
 
 	/**
 	 * Build the HTML Class String From the Array.
 	 *
 	 * Do any other necessary processing.
 	 *
-	 * @param array $arr
+	 * @param string $type
+	 * @param array $tiers
 	 *
 	 * @return string
 	 */
-	private function getHtmlClassStr( $items )
+	private function getHtmlClass( $type, $tiers )
 	{
-		if ( ! empty( $items ) )
+
+		/** Type of page (fixed-width or dynamic), with a trailing space. */
+		$str = $type . ' ';
+
+		if ( ! empty( $tiers ) )
 		{
-			$str = '';
-			$cnt = 0;
-			foreach ( $items as $item )
+			/** Exclude these tiers in the html level element */
+			$exclude = [ 'tier-2', 'tier-3' ];
+
+			foreach ( $tiers as $tier )
 			{
-				/** Only need the first two items. */
-				$cnt++;
-				if ( $cnt > 2 )
+
+				if ( ! empty( $tier['tier'] ) && ! in_array( $tier['tier'], $exclude ) )
 				{
-					break;
+					$str .= $tier['class'] . ' ';
 				}
-				$str .= $item . ' ';
 			}
-			return trim( $str );
+
+			/** Remove the trailing space. */
+			$str = trim( $str );
+
+			/** Need a trailing space, but not a leading space. */
+			$class = sprintf( 'class="%s" ', $str );
+
+			/** Return the class. */
+			return $class;
 		}
 		else
 		{
@@ -499,30 +431,26 @@ class EC01HTML
 	}
 
 	/**
-	 * Whether or not the Page is Dynamic or Fixed Width.
+	 * Build the Body Class String.
 	 *
-	 * @param array
+	 * Do any other necessary processing.
 	 *
-	 * @return string
+	 * @param array $tiers
+	 *
+	 * @return string|bool
 	 */
-	private function isPageDynamic( $page )
+	private function getBodyClass( $tiers )
 	{
-		if ( SITE_IS_FIXED_WIDTH && $page['front-page'] )
-		{
-			return 'fixed-width';
-		}
-		else
-		{
-			return 'dynamic';
-		}
+		/** Nothing here (yet). */
+		return null;
 	}
 
 	/**
 	 * Get the class from the article element
 	 *
-	 * @param array
+	 * @param string $article
 	 *
-	 * @return str
+	 * @return string
 	 */
 	private function getArticleClass( $article )
 	{
@@ -541,7 +469,38 @@ class EC01HTML
 	}
 
 	/**
-	 * Get the page and site title.
+	 * Whether or not the Page is Dynamic or Fixed Width.
+	 *
+	 *
+	 *
+	 * @param array
+	 *
+	 * @return string
+	 */
+	private function isPageDynamic( $page )
+	{
+		/** The class for a fixed width page. */
+		$fixed_width = 'fixed-width';
+
+		/** The class for a dynamic (responsive) page. */
+		$dynamic = 'dynamic';
+
+		if ( SITE_IS_FIXED_WIDTH )
+		{
+			return $fixed_width;
+		}
+		elseif( $page['front-page'] )
+		{
+			return $fixed_width;
+		}
+		else
+		{
+			return $dynamic;
+		}
+	}
+
+	/**
+	 * Get the Page and Site Title.
 	 *
 	 * @param array $page
 	 *
@@ -555,7 +514,8 @@ class EC01HTML
 		{
 			if( $page['front-page'] )
 			{
-				$str = sprintf( '%s%s%s', SITE_TITLE, ' | ', SITE_DESCRIPTION );
+				$description = str_replace( '<br />', ' ', SITE_DESCRIPTION );
+				$str = sprintf( '%s%s%s', SITE_TITLE, ' | ', $description );
 				return $str;
 			}
 			else if ( ! empty ( $page['article-title'] ) )
@@ -575,50 +535,10 @@ class EC01HTML
 	}
 
 	/**
-	 * Get the menu.
-	 *
-	 * @param array $page
-	 *
-	 * @return string
-	 */
-	private function getMenu()
-	{
-		$str = 'Menu N/A';
-		$file = SITE_MENU_PATH . SITE_MENU_DIR . SITE_HTML_EXT;
-		if ( file_exists( $file ) )
-		{
-			$str = file_get_contents( $file );
-			return $str;
-		} else
-		{
-			return $str;
-		}
-	}
-
-	/**
-	 * Get the sidebar
-	 *
-	 * @param array $page
-	 *
-	 * @return string
-	 */
-	private function getSidebar( $page )
-	{
-		$str = 'Sidebar N/A';
-		$file = SITE_SIDEBAR_PATH . SITE_SIDEBAR_DIR . SITE_HTML_EXT;
-		if ( file_exists( $file ) )
-		{
-			$str = file_get_contents( $file );
-			return $str;
-		}
-		else
-		{
-			return $str;
-		}
-	}
-
-	/**
 	 * Get the Footer
+	 *
+	 * Adds the Site Title and Copyright information based on SITE_TITLE,
+	 * SITE_YEAR_TO_NOW and SITE_TITLE.
 	 *
 	 * @return string
 	 */
@@ -656,26 +576,6 @@ class EC01HTML
 	}
 
 	/**
-	 * Get the footer
-	 *
-	 * @return string
-	 */
-	private function getFooterFile()
-	{
-		$str = 'Footer N/A';
-		$file = SITE_FOOTER_PATH . SITE_FOOTER_DIR . SITE_HTML_EXT;
-
-		if ( file_exists( $file ) )
-		{
-			$str = file_get_contents( $file );
-			return $str;
-		} else
-		{
-			return $str;
-		}
-	}
-
-	/**
 	 * Sanitize HTML
 	 *
 	 * Not currently used (2018.09.0)
@@ -695,4 +595,177 @@ class EC01HTML
 			return false;
 		}
 	}
+
+	//**** GET HEADER, MENU, ARTICLE, SIDEBAR, FOOTER AND PAGE FILES *****/
+
+	/**
+	 * Get the Header File.
+	 *
+	 * This can be used if this template part is static and rarely changes.
+	 * It just retrieves the template part saved to disk as an HTML file and
+	 * may be faster than if constructing the template part dynamically for every
+	 * page load.
+	 *
+	 * @param array $page
+	 *
+	 * @return string
+	 */
+	private function getHeaderFile( $page )
+	{
+		$str = 'Header N/A';
+
+		$file = SITE_HEADER_PATH . SITE_HEADER_DIR . SITE_HTML_EXT;
+
+		if ( file_exists( $file ) )
+		{
+			$str = file_get_contents( $file );
+			return $str;
+		}
+		else
+		{
+			return $str;
+		}
+	}
+
+	/**
+	 * Get the Menu File
+	 *
+	 * This can be used if this template part is static and rarely changes.
+	 * It just retrieves the template part saved to disk as an HTML file and
+	 * may be faster than if constructing the template part dynamically for every
+	 * page load.
+	 *
+	 * @param array $page
+	 *
+	 * @return string
+	 */
+	private function getMenuFile()
+	{
+		$str = 'Menu N/A';
+		$file = SITE_MENU_PATH . SITE_MENU_DIR . SITE_HTML_EXT;
+		if ( file_exists( $file ) )
+		{
+			$str = file_get_contents( $file );
+			return $str;
+		}
+		else
+		{
+			return $str;
+		}
+	}
+
+	/**
+	 * Get the Article File.
+	 *
+	 * This can be used if this template part is static and rarely changes.
+	 * It just retrieves the template part saved to disk as an HTML file and
+	 * may be faster than if constructing the template part dynamically for every
+	 * page load. Also performs a basic check on the file name length and the file
+	 * itself, to make sure nothing squirrely is happening here and that the content
+	 * is not trivial.
+	 *
+	 * @param array $page
+	 *
+	 * @return string|bool
+	 */
+	private function getArticleFile( $page )
+	{
+		$str = '<article>Article N/A.</article>';
+
+		$file = $page['file']['name'];
+		if ( ! empty( $file ) && strlen ( $file ) < 180 )
+		{
+			if ( file_exists( $file ) )
+			{
+				$str = file_get_contents( $file );
+			}
+		}
+		return $str;
+	}
+
+	/**
+	 * Get the Sidebar File.
+	 *
+	 * This can be used if this template part is static and rarely changes.
+	 * It just retrieves the template part saved to disk as an HTML file and
+	 * may be faster than if constructing the template part dynamically for every
+	 * page load.
+	 *
+	 * @param array $page
+	 *
+	 * @return string
+	 */
+	private function getSidebarFile( $page )
+	{
+		$str = 'Sidebar N/A';
+		$file = SITE_SIDEBAR_PATH . SITE_SIDEBAR_DIR . SITE_HTML_EXT;
+		if ( file_exists( $file ) )
+		{
+			$str = file_get_contents( $file );
+			return $str;
+		}
+		else
+		{
+			return $str;
+		}
+	}
+
+	/**
+	 * Get the Footer File
+	 *
+	 * This can be used if this template part is static and rarely changes.
+	 * It just retrieves the template part saved to disk as an HTML file and
+	 * may be faster than if constructing the template part dynamically for every
+	 * page load.
+	 *
+	 * @return string
+	 */
+	private function getFooterFile( $page )
+	{
+		$str = 'Footer N/A';
+		$file = SITE_FOOTER_PATH . SITE_FOOTER_DIR . SITE_HTML_EXT;
+
+		if ( file_exists( $file ) )
+		{
+			$str = file_get_contents( $file );
+			return $str;
+		} else
+		{
+			return $str;
+		}
+	}
+
+	/**
+	 * Get the Page File.
+	 *
+	 * The entire page exists. We are just being nice and delivering it as is.
+	 * A basic check on the file length is done. Otherwise, nothing much here.
+	 *
+	 * @param array $page
+	 *
+	 * @return string
+	 */
+	private function getPageFile( $page )
+	{
+		$str = "This page doesn't exist.";
+		$file = $page['file']['name'];
+		if ( strlen ( $file ) < 120 )
+		{
+			$str = file_get_contents( $file );
+			return $str;
+		}
+		else
+		{
+			return $str;
+		}
+	}
 } //end class
+
+function pre_dump( $arr )
+{
+	if ( 1 ) {
+		echo "<pre>" . PHP_EOL;
+		var_dump( $arr );
+		echo "</pre>" . PHP_EOL;
+	}
+}

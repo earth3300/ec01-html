@@ -1,31 +1,35 @@
 <?php
-
-namespace Earth3300\EC01;
-
 /**
  * EC01 HTML.
  *
- * A lighweight alternative to displaying HTML. Can be used on its own, or as a WordPress theme.
- * A basic set of constants are in this index file.
+ * A lighweight alternative to displaying HTML. Can be used on its own, or as a
+ * WordPress theme. A basic set of constants are in this index file.
  *
- * @package EC01HTML
+ * @package Earth3300\EC01
  * @since 2018.10.29
  * @author Clarence J. Bos <cbos@tnoep.ca>
  * @copyright Copyright (c) 2018, Clarence J. Bos
- * @license https://www.gnu.org/licenses/gpl-3.0.en.html GPL-3.0+
+ * @license https://www.gnu.org/licenses/gpl-3.0.en.html vGPL-3.0
  * @link https://github.com/earth3300/ec01-html
  *
  * @wordpress-theme
  * Theme Name: EC01 HTML
  * Theme URI: https://github.com/earth3300/ec01-html
  * Description: A lightweight alternative to displaying HTML. Can be used on its own or as a WordPress theme.
- * Version: 2018.10.29
+ * Version: 2018.11.06
  * Author: Clarence J. Bos
  * Author URI: https://github.com/earth3300
  * Text Domain: ec01-html
- * License: GPL-3.0+
+ * License: GPL v3.0
  * License URI: https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ * File: index.php
+ * Created: 2018-10
+ * Updated: 2018-11-06
+ * Time: 16:17 EST
  */
+
+namespace Earth3300\EC01;
 
 /**
  * If `wp_get_server_protocol` exists, we are in WordPress, otherwise not.
@@ -33,12 +37,12 @@ namespace Earth3300\EC01;
 if( function_exists( 'wp_get_server_protocol' ) )
 {
 	/** We are in WordPress, and check for direct access. */
-	defined('ABSPATH') || exit('No direct access.');
+	defined('ABSPATH') || exit('NDA');
 }
 else
 {
 	/** We are not in WordPress, and check for direct access. */
-	defined('NDA') || exit('No direct access.');
+	defined('NDA') || exit('NDA');
 }
 
 if ( ! defined( 'SITE_PATH' ) && defined('ABSPATH') )
@@ -74,6 +78,7 @@ elseif( defined( 'SITE_PATH' ) )
 		define( 'SITE_TITLE', 'Site Title' );
 		define( 'SITE_DESCRIPTION', 'Site Description' );
 		define( 'SITE_USE_BASIC', true );
+		define( 'SITE_USE_HEADER_SUB', true );
 		define( 'SITE_LANG', 'en' );
 		define( 'SITE_CHARSET', 'UTF-8' );
 		define( 'SITE_ELAPSED_TIME', false );
